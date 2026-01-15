@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>九九乘法表练习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .mode-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f0f0f0;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* 学习模式样式 - 阶梯式九九乘法表 */
+        .table-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .table-row {
+            display: flex;
+            gap: 15px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .table-cell {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            min-width: 100px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .table-cell:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .table-cell:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .table-cell:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .table-cell:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .table-cell:nth-child(4) { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .table-cell:nth-child(5) { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .table-cell:nth-child(6) { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .table-cell:nth-child(7) { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .table-cell:nth-child(8) { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        .table-cell:nth-child(9) { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+
+        /* 测试模式样式 */
+        .test-container {
+            text-align: center;
+        }
+
+        .score-board {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.2em;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .score-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .score-value {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .answer-input {
+            width: 200px;
+            padding: 15px;
+            font-size: 2em;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .feedback {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 40px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .wrong {
+            color: #dc3545;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .result-screen.active {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .result-details {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .mode-btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .question {
+                font-size: 2em;
+            }
+
+            .answer-input {
+                width: 150px;
+                font-size: 1.5em;
+            }
+
+            .table-cell {
+                min-width: 80px;
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+            
+            .table-row {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>九九乘法表练习</h1>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode('learn')">学习模式</button>
+            <button class="mode-btn" onclick="switchMode('test')">测试模式</button>
+        </div>
+
+        <!-- 学习模式 -->
+        <div id="learn-mode" class="content active">
+            <div class="table-grid" id="tableGrid"></div>
+        </div>
+
+        <!-- 测试模式 -->
+        <div id="test-mode" class="content">
+            <div class="test-container">
+                <div class="score-board">
+                    <div class="score-item">
+                        <span class="score-label">答对</span>
+                        <span class="score-value" id="correct">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">答错</span>
+                        <span class="score-value" id="wrong">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">进度</span>
+                        <span class="score-value" id="progress">0/10</span>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question" id="question">点击开始测试</div>
+                    <input type="number" class="answer-input" id="answerInput" style="display: none;" 
+                           onkeypress="if(event.key === 'Enter') checkAnswer()">
+                </div>
+
+                <div>
+                    <button class="btn btn-primary" onclick="startTest()" id="startBtn">开始测试</button>
+                    <button class="btn btn-primary" onclick="checkAnswer()" id="submitBtn" style="display: none;">提交答案</button>
+                    <button class="btn btn-secondary" onclick="skipQuestion()" id="skipBtn" style="display: none;">跳过</button>
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+
+                <div class="result-screen" id="resultScreen">
+                    <div class="result-title">测试完成！</div>
+                    <div class="result-details" id="resultDetails"></div>
+                    <button class="btn btn-primary" onclick="startTest()">再来一次</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 生成学习模式的乘法表（阶梯式）
+        function generateLearningTable() {
+            const grid = document.getElementById('tableGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 9; i++) {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.style.animationDelay = `${i * 0.1}s`;
+                
+                for (let j = 1; j <= i; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'table-cell';
+                    cell.textContent = `${j}×${i}=${j * i}`;
+                    row.appendChild(cell);
+                }
+                
+                grid.appendChild(row);
+            }
+        }
+
+        // 测试模式变量
+        let currentQuestion = {};
+        let correctCount = 0;
+        let wrongCount = 0;
+        let totalQuestions = 10;
+        let currentIndex = 0;
+
+        // 切换模式
+        function switchMode(mode) {
+            // 更新按钮状态
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 更新内容显示
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            if (mode === 'learn') {
+                document.getElementById('learn-mode').classList.add('active');
+            } else {
+                document.getElementById('test-mode').classList.add('active');
+                resetTest();
+            }
+        }
+
+        // 生成随机题目
+        function generateQuestion() {
+            const num1 = Math.floor(Math.random() * 9) + 1;
+            const num2 = Math.floor(Math.random() * 9) + 1;
+            currentQuestion = {
+                num1: num1,
+                num2: num2,
+                answer: num1 * num2
+            };
+            document.getElementById('question').textContent = `${num1} × ${num2} = ?`;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+        }
+
+        // 开始测试
+        function startTest() {
+            correctCount = 0;
+            wrongCount = 0;
+            currentIndex = 0;
+            
+            document.getElementById('correct').textContent = '0';
+            document.getElementById('wrong').textContent = '0';
+            document.getElementById('progress').textContent = '0/' + totalQuestions;
+            document.getElementById('feedback').textContent = '';
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('skipBtn').style.display = 'inline-block';
+            document.getElementById('answerInput').style.display = 'inline-block';
+            document.getElementById('resultScreen').classList.remove('active');
+            
+            generateQuestion();
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answerInput').value);
+            const feedback = document.getElementById('feedback');
+            
+            if (isNaN(userAnswer)) {
+                feedback.textContent = '请输入数字！';
+                feedback.className = 'feedback wrong';
+                return;
+            }
+            
+            currentIndex++;
+            
+            if (userAnswer === currentQuestion.answer) {
+                correctCount++;
+                feedback.textContent = '回答正确！';
+                feedback.className = 'feedback correct';
+            } else {
+                wrongCount++;
+                feedback.textContent = `答错了！正确答案是 ${currentQuestion.answer}`;
+                feedback.className = 'feedback wrong';
+            }
+            
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('wrong').textContent = wrongCount;
+            document.getElementById('progress').textContent = currentIndex + '/' + totalQuestions;
+            
+            if (currentIndex >= totalQuestions) {
+                setTimeout(showResults, 1500);
+            } else {
+                setTimeout(() => {
+                    feedback.textContent = '';
+                    generateQuestion();
+                }, 1500);
+            }
+        }
+
+        // 跳过题目
+        function skipQuestion() {
+            currentIndex++;
+            wrongCount++;
+            
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = `正确答案是 ${currentQuestion.answer}`;
+            feedback.className = 'feedback wrong';
+            
+            document.getElementById('wrong').textContent = wrongCount;
+            document.getElementById('progress').textContent = currentIndex + '/' + totalQuestions;
+            
+            if (currentIndex >= totalQuestions) {
+                setTimeout(showResults, 1500);
+            } else {
+                setTimeout(() => {
+                    feedback.textContent = '';
+                    generateQuestion();
+                }, 1500);
+            }
+        }
+
+        // 显示结果
+        function showResults() {
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('skipBtn').style.display = 'none';
+            document.getElementById('answerInput').style.display = 'none';
+            document.getElementById('feedback').textContent = '';
+            
+            const accuracy = Math.round((correctCount / totalQuestions) * 100);
+            let message = '';
+            
+            if (accuracy >= 90) {
+                message = '太棒了！你已经完全掌握了！';
+            } else if (accuracy >= 70) {
+                message = '很好！继续加油！';
+            } else if (accuracy >= 50) {
+                message = '不错！再多练习会更好！';
+            } else {
+                message = '加油！多练习就会进步的！';
+            }
+            
+            document.getElementById('resultDetails').innerHTML = `
+                <p>正确率：${accuracy}%</p>
+                <p>答对：${correctCount} 题</p>
+                <p>答错：${wrongCount} 题</p>
+                <p>${message}</p>
+            `;
+            
+            document.getElementById('resultScreen').classList.add('active');
+        }
+
+        // 重置测试
+        function resetTest() {
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('skipBtn').style.display = 'none';
+            document.getElementById('answerInput').style.display = 'none';
+            document.getElementById('question').textContent = '点击开始测试';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('resultScreen').classList.remove('active');
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            generateLearningTable();
+        };
+    </script>
+</body>
+</html>
